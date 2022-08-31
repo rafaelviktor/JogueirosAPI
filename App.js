@@ -1,15 +1,19 @@
 const express = require("express");
+const mongoose = require("mongoose");
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-const dotenv = require('dotenv');
-dotenv.config();
-const sequelize = require('./src/database');
-const routes = require('./src/routes');
+require('dotenv').config();
 
-app.use('/', routes);
+app.get("/", async (req, res) => {
+  res.status(200).send("<h1>API Jogueiros</h1><h2>Versão: 31.08.2022</h2>");
+})
 
-app.listen(5000, async () => {
-    await sequelize.sync({ force: true });
-    console.log("server is running on port 5000");
+app.use("/users", require("./src/routes/usuarios"));
+
+mongoose.connect(process.env.MongoDB_URL, () => console.log("Conectado ao banco de dados MongoDB."));
+
+app.listen(process.env.PORT || 5000, async () => {
+    console.log("API Jogueiros iniciada: Servidor operando na porta 5000.");
   });
