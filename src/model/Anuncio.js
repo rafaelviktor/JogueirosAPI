@@ -1,57 +1,60 @@
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../database');
+const mongoose = require('mongoose');
 
-class Anuncio extends Model{}
-
-User.init({
+const AnuncioModel = mongoose.Schema({
+    id_anunciante: {
+        type: String,
+        required: true
+    },
     titulo: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: String,
+        required: true
     },
     descricao: {
-        type: DataTypes.STRING,
-        allowNull: true
+        type: String,
+        required: true
     },
     preco: {
-        type: DataTypes.STRING(5),
-        allowNull: false
+        type: Number,
+        required: true
     },
     imagem: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: String,
+        required: true
     },
     cep: {
-        type: DataTypes.STRING(8),
-        allowNull: false
+        type: Number,
+        required: true
     },
     logradouro: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: String,
+        required: true
     },
     numero: {
-        type: DataTypes.STRING(5),
-        allowNull: true
+        type: Number,
+        required: false
     },
     complemento: {
-        type: DataTypes.STRING(50),
-        allowNull: true
+        type: String,
+        required: false
     },
     bairro: {
-        type: DataTypes.STRING(50),
-        allowNull: false
+        type: String,
+        required: true
     },
     cidade: {
-        type: DataTypes.STRING(30),
-        allowNull: false
+        type: String,
+        required: true
     },
     estado: {
-        type: DataTypes.STRING(20),
-        allowNull: false
+        type: String,
+        required: true
+    },
+    visualizacoes: {
+        type: Number,
+        required: true
     }
-},{
-    sequelize,
-    modelName: 'Anuncio',
-    tableName: 'anuncios'
+}, {
+    versionKey: false
 });
 
-module.exports = Anuncio;
+module.exports = mongoose.model('anuncios', AnuncioModel);

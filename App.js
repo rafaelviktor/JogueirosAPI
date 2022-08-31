@@ -1,7 +1,10 @@
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 require('dotenv').config();
@@ -11,6 +14,8 @@ app.get("/", async (req, res) => {
 })
 
 app.use("/users", require("./src/routes/usuarios"));
+app.use("/anuncios", require("./src/routes/anuncios"));
+app.use("/reservas", require("./src/routes/reservas"));
 
 mongoose.connect(process.env.MongoDB_URL, () => console.log("Conectado ao banco de dados MongoDB."));
 
