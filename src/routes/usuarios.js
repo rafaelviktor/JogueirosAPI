@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const User = require('../model/Usuario');
+const validarInfo = require('../middleware/validarInfo');
+const geradorToken = require('../utils/geradorToken');
 const bcrypt = require('bcrypt');
 
 router.get("/", async (req, res) => {
@@ -11,23 +13,48 @@ router.get("/", async (req, res) => {
     }
 })
 
-router.post("/create", async (req, res) => {
-    // encriptar a senha
+router.post("/registrar",validarInfo, async (req, res) => {
+    const { nome, email, senha, contato } = req.body
+
+    const user = await User.find({ email: email }).exec();
+    if (user.length !== 0) {
+        return res.status(401).json({result: null, message: 'Já existe um usuário utilizando este e-mail.', success: false})
+    }
+
     const salt = await bcrypt.genSalt(10);
 
-    const hashedPassword = await bcrypt.hash(req.body.senha, salt);
+    const hashedPassword = await bcrypt.hash(senha, salt);
 
     const usuario = new User({
-        usuario: req.body.usuario,
-        email: req.body.email,
+        nome: nome,
+        email: email,
         senha: hashedPassword,
-        contato: req.body.contato
+        contato: contato
     });
 
     usuario.save().then(data => {
-        res.status(200).json({result: null, message: data, success: true});
+        const token = geradorToken(data.id);
+        res.status(200).json({result: token, message: 'Usuário criado com sucesso.', success: true});
     })
-    .catch(err => res.status(500).json({result: null, message: err, success: false}));
+    .catch(err => res.status(500).json({result: err, message: 'Erro interno do servidor.', success: false}));
+})
+
+router.post("/entrar",validarInfo, async (req, res) => {
+    const { email, senha } = req.body
+
+    const user = await User.find({ email: email }).exec();
+    if (user.length === 0) {
+        return res.status(401).json({result: null, message: 'E-mail ou senha incorretos.', success: false})
+    }
+
+    const senhaValida = await bcrypt.compare(senha, user[0].senha)
+
+    if (!senhaValida) {
+        return res.status(401).json({result: null, message: 'E-mail ou senha incorretos.', success: false})
+    }
+
+    const token = geradorToken(user[0].id);
+    res.status(200).json({result: token, message: 'Usuário logado com sucesso.', success: true});
 })
 
 module.exports = router;
