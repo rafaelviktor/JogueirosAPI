@@ -6,7 +6,17 @@ router.get("/", async (req, res) => {
         const anuncios = await Anuncio.find()
         res.status(200).json({result: anuncios, message: null, success: true});
     } catch (err) {
-        res.status(500).json({result: null, message: err, success: false});
+        res.status(500).json({result: err, message: 'Erro ao pesquisar anúncios. Por favor tente novamente.', success: false});
+    }
+})
+
+router.get("/:id", async (req, res) => {
+    const id = req.params['id'];
+    try {
+        const anuncios = await Anuncio.find({ _id: id }).exec();
+        res.status(200).json({result: anuncios[0], message: null, success: true});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Anúncio não encontrado.', success: false});
     }
 })
 
@@ -30,7 +40,7 @@ router.post("/create", async (req, res) => {
     anuncio.save().then(data => {
         res.status(200).json({result: null, message: data, success: true});
     })
-    .catch(err => res.status(500).json({result: null, message: err, success: false}));
+    .catch(err => res.status(500).json({result: err, message: 'Erro ao criar anúncio. Por favor, tente novamente.', success: false}));
 })
 
 module.exports = router;

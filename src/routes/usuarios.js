@@ -9,7 +9,17 @@ router.get("/", async (req, res) => {
         const usuarios = await User.find()
         res.status(200).json({result: usuarios, message: null, success: true});
     } catch (err) {
-        res.status(500).json({result: null, message: err, success: false});
+        res.status(500).json({result: err, message: 'Erro ao pesquisar usuários. Por favor tente novamente.', success: false});
+    }
+})
+
+router.get("/:id", async (req, res) => {
+    const id = req.params['id'];
+    try {
+        const anuncios = await User.find({ _id: id }).exec();
+        res.status(200).json({result: anuncios[0], message: null, success: true});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Usuário não encontrado.', success: false});
     }
 })
 
@@ -36,7 +46,7 @@ router.post("/registrar",validarInfo, async (req, res) => {
         const token = geradorToken(data.id);
         res.status(200).json({result: token, message: 'Usuário criado com sucesso.', success: true});
     })
-    .catch(err => res.status(500).json({result: err, message: 'Erro interno do servidor.', success: false}));
+    .catch(err => res.status(500).json({result: err, message: 'Erro ao criar usuário. Por favor, tente novamente.', success: false}));
 })
 
 router.post("/entrar",validarInfo, async (req, res) => {

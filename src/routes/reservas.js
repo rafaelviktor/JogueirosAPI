@@ -6,7 +6,17 @@ router.get("/", async (req, res) => {
         const reservas = await Reserva.find()
         res.status(200).json({result: reservas, message: null, success: true});
     } catch (err) {
-        res.status(500).json({result: null, message: err, success: false});
+        res.status(500).json({result: err, message: 'Erro ao pesquisar reservas. Por favor tente novamente.', success: false});
+    }
+})
+
+router.get("/:id", async (req, res) => {
+    const id = req.params['id'];
+    try {
+        const anuncios = await Reserva.find({ _id: id }).exec();
+        res.status(200).json({result: anuncios[0], message: null, success: true});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Reserva não encontrada.', success: false});
     }
 })
 
@@ -31,7 +41,7 @@ router.post("/create", async (req, res) => {
     reserva.save().then(data => {
         res.status(200).json({result: null, message: data, success: true});
     })
-    .catch(err => res.status(500).json({result: null, message: err, success: false}));
+    .catch(err => res.status(500).json({result: err, message: 'Erro ao realizar a reserva. Por favor, tente novamente.', success: false}));
 })
 
 module.exports = router;
