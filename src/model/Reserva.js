@@ -24,6 +24,10 @@ const ReservaModel = mongoose.Schema({
     data_inclusao: {
         type: String,
         required: true
+    },
+    status: {
+        type: String,
+        required: true
     }
 }, {
     versionKey: false
