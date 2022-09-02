@@ -65,6 +65,25 @@ router.patch("/alterar/:id",autorizacao, async (req, res) => {
     }
 })
 
+router.patch("/status/:id/:status",autorizacao, async (req, res) => {
+    const id = req.params['id'];
+    const status = req.params['status'];
+    try {
+        const reserva = await Reserva.findById(id).exec();
+        const anuncio = await Anuncio.findById(reserva.id_anuncio).exec();
+
+        if(anuncio.id_anunciante === req.id) {
+            Object.assign(reserva, {status: status});
+            reserva.save();
+            return res.status(200).json({result: reserva, message: 'Status da reserva alterado com sucesso.', success: true});
+        }
+
+        res.status(401).json({result: null, message: 'Somente o dono do anúncio pode modificar a reserva.', success: false});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Erro ao alterar a reserva. Por favor, tente novamente.', success: false});
+    }
+})
+
 router.delete("/excluir/:id",autorizacao, async (req, res) => {
     const id = req.params['id'];
     try {
