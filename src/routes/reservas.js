@@ -53,6 +53,10 @@ router.patch("/alterar/:id",autorizacao, async (req, res) => {
         const reserva = await Reserva.findById(id).exec();
 
         if(reserva.id_usuario === req.id) {
+            if(reserva.status === "Recusado") {
+                return res.status(403).json({result: null, message: 'A reserva foi recusada, portanto não pode ser editada, apenas excluída.', success: false});
+            }
+
             Object.assign(req.body, {status: "Pendente"});
             Object.assign(reserva, req.body);
             reserva.save();
