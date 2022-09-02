@@ -37,7 +37,8 @@ router.post("/criar",autorizacao, async (req, res) => {
         data_reserva: req.body.data_reserva,
         hora_inicio: req.body.hora_inicio,
         hora_final: req.body.hora_final,
-        data_inclusao: new Date().toLocaleDateString('pt-br', configdata)
+        data_inclusao: new Date().toLocaleDateString('pt-br', configdata),
+        status: "Pendente"
     });
 
     reserva.save().then(data => {
@@ -46,11 +47,29 @@ router.post("/criar",autorizacao, async (req, res) => {
     .catch(err => res.status(500).json({result: err, message: 'Erro ao realizar a reserva. Por favor, tente novamente.', success: false}));
 })
 
+router.patch("/alterar/:id",autorizacao, async (req, res) => {
+    const id = req.params['id'];
+    try {
+        const reserva = await Reserva.findById(id).exec();
+
+        if(reserva.id_usuario === req.id) {
+            Object.assign(req.body, {status: "Pendente"});
+            Object.assign(reserva, req.body);
+            reserva.save();
+            return res.status(200).json({result: reserva, message: 'Reserva alterada com sucesso.', success: true});
+        }
+
+        res.status(401).json({result: null, message: 'Somente o usuário que criou a reserva pode modificá-la.', success: false});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Erro ao alterar a reserva. Por favor, tente novamente.', success: false});
+    }
+})
+
 router.delete("/excluir/:id",autorizacao, async (req, res) => {
     const id = req.params['id'];
     try {
         const reserva = await Reserva.findById(id).exec();
-        const anuncio = await Anuncio.findOne(reserva.id_anuncio).exec();
+        const anuncio = await Anuncio.findById(reserva.id_anuncio).exec();
 
         if(reserva.id_usuario === req.id || anuncio.id_anunciante === req.id) {
             reserva.deleteOne();
