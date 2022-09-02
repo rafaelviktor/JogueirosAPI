@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 
 router.get("/", async (req, res) => {
     try {
-        const usuarios = await User.find()
+        const usuarios = await User.find().select('nome')
         res.status(200).json({result: usuarios, message: null, success: true});
     } catch (err) {
         res.status(500).json({result: err, message: 'Erro ao pesquisar usuários. Por favor tente novamente.', success: false});
@@ -68,24 +68,6 @@ router.post("/entrar",validarInfo, async (req, res) => {
 
     const token = geradorToken(user[0].id);
     res.status(200).json({result: token, message: 'Usuário logado com sucesso.', success: true});
-})
-
-router.delete("/excluir",autorizacao, async (req, res) => {
-    const id = req.id;
-    try {
-        const usuario = await User.findById(id).exec();
-
-        if(usuario.id === req.id) {
-            await usuario.deleteOne();
-            await Anuncio.deleteMany({id_anunciante: id}).exec();
-            await Reserva.deleteMany({id_usuario: id}).exec();
-            return res.status(200).json({result: null, message: 'Usuário excluído com sucesso.', success: true});
-        }
-
-        res.status(401).json({result: null, message: 'Somente o anunciante pode excluir o próprio anúncio.', success: false});
-    } catch (err) {
-        res.status(500).json({result: err, message: 'Anúncio não encontrado.', success: false});
-    }
 })
 
 module.exports = router;
