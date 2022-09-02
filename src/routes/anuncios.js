@@ -5,7 +5,16 @@ const autorizacao = require("../middleware/verificarToken");
 
 router.get("/", async (req, res) => {
     try {
-        const anuncios = await Anuncio.find()
+        const anuncios = await Anuncio.find().sort({ _id: -1 });
+        res.status(200).json({result: anuncios, message: null, success: true});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Erro ao pesquisar anúncios. Por favor tente novamente.', success: false});
+    }
+})
+
+router.get("/populares", async (req, res) => {
+    try {
+        const anuncios = await Anuncio.find().sort({ visualizacoes: 'desc' });
         res.status(200).json({result: anuncios, message: null, success: true});
     } catch (err) {
         res.status(500).json({result: err, message: 'Erro ao pesquisar anúncios. Por favor tente novamente.', success: false});
@@ -40,9 +49,26 @@ router.post("/criar",autorizacao, async (req, res) => {
     });
 
     anuncio.save().then(data => {
-        res.status(200).json({result: null, message: data, success: true});
+        res.status(200).json({result: data, message: 'Anúncio criado com sucesso.', success: true});
     })
     .catch(err => res.status(500).json({result: err, message: 'Erro ao criar anúncio. Por favor, tente novamente.', success: false}));
+})
+
+router.patch("/alterar/:id",autorizacao, async (req, res) => {
+    const id = req.params['id'];
+    try {
+        const anuncio = await Anuncio.findById(id).exec();
+
+        if(anuncio.id_anunciante === req.id) {
+            Object.assign(anuncio, req.body);
+            anuncio.save();
+            return res.status(200).json({result: anuncio, message: 'Anúncio alterado com sucesso.', success: true});
+        }
+
+        res.status(401).json({result: null, message: 'Somente o anunciante pode alterar o próprio anúncio.', success: false});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Erro ao alterar o anúncio. Por favor, tente novamente.', success: false});
+    }
 })
 
 router.delete("/excluir/:id",autorizacao, async (req, res) => {
@@ -58,7 +84,7 @@ router.delete("/excluir/:id",autorizacao, async (req, res) => {
 
         res.status(401).json({result: null, message: 'Somente o anunciante pode excluir o próprio anúncio.', success: false});
     } catch (err) {
-        res.status(500).json({result: err, message: 'Anúncio não encontrado.', success: false});
+        res.status(500).json({result: err, message: 'Erro ao excluir o anúncio. Por favor, tente novamente.', success: false});
     }
 })
 
