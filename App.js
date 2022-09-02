@@ -14,6 +14,7 @@ app.get("/", async (req, res) => {
 })
 
 app.use("/users", require("./src/routes/usuarios"));
+app.use("/perfil", require("./src/routes/perfil"));
 app.use("/anuncios", require("./src/routes/anuncios"));
 app.use("/reservas", require("./src/routes/reservas"));
 

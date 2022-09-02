@@ -1,5 +1,7 @@
 const router = require("express").Router();
+const Anuncio = require('../model/Anuncio');
 const Reserva = require('../model/Reserva');
+const autorizacao = require("../middleware/verificarToken");
 
 router.get("/", async (req, res) => {
     try {
@@ -13,14 +15,14 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     const id = req.params['id'];
     try {
-        const anuncios = await Reserva.find({ _id: id }).exec();
-        res.status(200).json({result: anuncios[0], message: null, success: true});
+        const reserva = await Reserva.findById(id).exec();
+        res.status(200).json({result: reserva, message: null, success: true});
     } catch (err) {
         res.status(500).json({result: err, message: 'Reserva não encontrada.', success: false});
     }
 })
 
-router.post("/create", async (req, res) => {
+router.post("/criar",autorizacao, async (req, res) => {
     const configdata = {
         year: 'numeric',
         month: 'numeric',
@@ -30,7 +32,7 @@ router.post("/create", async (req, res) => {
     }
 
     const reserva = new Reserva({
-        id_usuario: req.body.id_usuario,
+        id_usuario: req.id,
         id_anuncio: req.body.id_anuncio,
         data_reserva: req.body.data_reserva,
         hora_inicio: req.body.hora_inicio,
@@ -42,6 +44,23 @@ router.post("/create", async (req, res) => {
         res.status(200).json({result: null, message: data, success: true});
     })
     .catch(err => res.status(500).json({result: err, message: 'Erro ao realizar a reserva. Por favor, tente novamente.', success: false}));
+})
+
+router.delete("/excluir/:id",autorizacao, async (req, res) => {
+    const id = req.params['id'];
+    try {
+        const reserva = await Reserva.findById(id).exec();
+        const anuncio = await Anuncio.findOne(reserva.id_anuncio).exec();
+
+        if(reserva.id_usuario === req.id || anuncio.id_anunciante === req.id) {
+            reserva.deleteOne();
+            return res.status(200).json({result: null, message: 'Reserva excluída com sucesso.', success: true});
+        }
+
+        res.status(401).json({result: null, message: 'Somente o anunciante ou o usuário que fez a reserva podem excluí-la.', success: false});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Reserva não encontrada.', success: false});
+    }
 })
 
 module.exports = router;
