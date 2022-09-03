@@ -21,6 +21,27 @@ router.get("/populares", async (req, res) => {
     }
 })
 
+router.get("/pesquisa", async (req, res) => {
+    try {
+        const { q } = req.query
+        const anuncios = await Anuncio.find({tituloformatado: { $regex: '.*' + q.normalize("NFD").replace(/[\u0300-\u036f]/g, "") + '.*', $options: 'i' }}).exec();
+        res.status(200).json({result: anuncios, message: null, success: true});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Erro ao pesquisar anúncios. Por favor tente novamente.', success: false});
+    }
+})
+
+router.get("/pesquisa/estado/:uf", async (req, res) => {
+    const uf = req.params["uf"]
+    try {
+        const { q } = req.query
+        const anuncios = await Anuncio.find({estado: { $regex: '.*' + uf + '.*', $options: 'i' }}).exec();
+        res.status(200).json({result: anuncios, message: null, success: true});
+    } catch (err) {
+        res.status(500).json({result: err, message: 'Erro ao pesquisar anúncios. Por favor tente novamente.', success: false});
+    }
+})
+
 router.get("/:id", async (req, res) => {
     const id = req.params['id'];
     try {
@@ -32,9 +53,12 @@ router.get("/:id", async (req, res) => {
 })
 
 router.post("/criar",autorizacao, async (req, res) => {
+    const tituloformatado = req.body.titulo;
+
     const anuncio = new Anuncio({
         id_anunciante: req.id,
         titulo: req.body.titulo,
+        tituloformatado: tituloformatado.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
         descricao: req.body.descricao,
         preco: req.body.preco,
         imagem: req.body.imagem,

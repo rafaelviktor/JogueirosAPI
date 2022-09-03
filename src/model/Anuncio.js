@@ -9,6 +9,10 @@ const AnuncioModel = mongoose.Schema({
         type: String,
         required: true
     },
+    tituloformatado: {
+        type: String,
+        required: true
+    },
     descricao: {
         type: String,
         required: true
