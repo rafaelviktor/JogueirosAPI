@@ -2,6 +2,8 @@ const router = require("express").Router();
 const Anuncio = require('../model/Anuncio');
 const Reserva = require('../model/Reserva');
 const autorizacao = require("../middleware/verificarToken");
+const fs = require('fs');
+const path = require('path');
 
 router.get("/", async (req, res) => {
     try {
@@ -70,6 +72,28 @@ router.post("/criar",autorizacao, async (req, res) => {
         cidade: req.body.cidade,
         estado: req.body.estado,
         visualizacoes: 0
+    });
+    // mover imagem do anúncio da pasta temporária para a pasta de uploads
+    const oldPath = `./public/tmp/${req.body.imagem}`
+    const newPath = `./public/uploads/${req.body.imagem}`
+
+    fs.rename(oldPath, newPath, function (err) {
+        if (err) throw err
+        console.log('Arquivo movido')
+    })
+
+    const directory = './public/tmp/';
+
+    fs.readdir(directory, (err, files) => {
+      if (err) return res.status(500).json({result: err, message: 'Erro ao criar anúncio. Por favor, tente novamente.', success: false});
+    
+      for (const file of files) {
+        if (file != '.gitkeep') {
+            fs.unlink(path.join(directory, file), err => {
+                if (err) return res.status(500).json({result: err, message: 'Erro ao criar anúncio. Por favor, tente novamente.', success: false});
+            });
+        }
+      }
     });
 
     anuncio.save().then(data => {

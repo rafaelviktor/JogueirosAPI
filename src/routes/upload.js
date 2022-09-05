@@ -11,10 +11,9 @@ router.delete('/excluir/:img', autorizacao, async (req, res) => {
         const uploadsPath = `./public/uploads/${req.params['img']}`; 
         fs.unlinkSync(uploadsPath);
 
-        res.status(200).json("Imagem excluída com sucesso")
+        res.status(200).json({result: null, message: 'Imagem excluída com sucesso.', success: true})
     } catch (err) {
-        console.error(err.message)
-        res.status(500).send("Internal server error")
+        res.status(500).send({result: err.message, message: 'Erro ao tentar excluir imagem, por favor tente novamente.', success: false})
     }
 });
 
