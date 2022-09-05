@@ -17,6 +17,7 @@ app.use("/users", require("./src/routes/usuarios"));
 app.use("/perfil", require("./src/routes/perfil"));
 app.use("/anuncios", require("./src/routes/anuncios"));
 app.use("/reservas", require("./src/routes/reservas"));
+app.use("/upload", require("./src/routes/upload"));
 
 mongoose.connect(process.env.MongoDB_URL, () => console.log("Conectado ao banco de dados MongoDB."));
 
