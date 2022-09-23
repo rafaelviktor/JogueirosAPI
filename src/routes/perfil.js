@@ -40,7 +40,12 @@ router.patch("/alterar/:id",autorizacao, async (req, res) => {
         if(usuario.id === req.id) {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(req.body.senha, salt);
-            Object.assign(usuario, {nome: req.body.nome, email: req.body.email, senha: hashedPassword, contato: req.body.contato});
+            Object.assign(usuario,
+                req.body.nome === "" ? null : {nome: req.body.nome},
+                req.body.email === "" ? null : {email: req.body.email},
+                req.body.senha === "" ? null : {senha: hashedPassword},
+                req.body.contato === "" ? null : {contato: req.body.contato}
+            );
             usuario.save();
             return res.status(200).json({result: usuario, message: 'Usuário alterado com sucesso.', success: true});
         }
