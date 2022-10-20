@@ -2,8 +2,6 @@ const router = require("express").Router();
 const Anuncio = require('../model/Anuncio');
 const Reserva = require('../model/Reserva');
 const autorizacao = require("../middleware/verificarToken");
-const fs = require('fs');
-const path = require('path');
 
 router.get("/", async (req, res) => {
     try {
