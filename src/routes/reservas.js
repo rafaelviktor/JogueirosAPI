@@ -31,18 +31,21 @@ router.post("/criar",autorizacao, async (req, res) => {
         minute: 'numeric'
     }
 
+    const dataHoje = new Date()
+    dataHoje.setHours(dataHoje.getHours() - 3)
+
     const reserva = new Reserva({
         id_usuario: req.id,
         id_anuncio: req.body.id_anuncio,
         data_reserva: req.body.data_reserva,
         hora_inicio: req.body.hora_inicio,
         hora_final: req.body.hora_final,
-        data_inclusao: new Date().toLocaleDateString('pt-br', configdata),
+        data_inclusao: dataHoje.toLocaleDateString('pt-br', configdata),
         status: "Pendente"
     });
 
     reserva.save().then(data => {
-        res.status(200).json({result: null, message: data, success: true});
+        res.status(200).json({result: data, message: 'Reserva efetuada com sucesso.', success: true});
     })
     .catch(err => res.status(500).json({result: err, message: 'Erro ao realizar a reserva. Por favor, tente novamente.', success: false}));
 })
