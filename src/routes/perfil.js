@@ -26,7 +26,11 @@ router.get("/meus-anuncios",autorizacao, async (req, res) => {
 router.get("/minhas-reservas",autorizacao, async (req, res) => {
     try {
         const reservas = await Reserva.find({ id_usuario: req.id }).exec();
-        res.status(200).json({result: reservas, message: null, success: true});
+        const resultado = []
+        for(i = 0; i < reservas.length; i++) {
+            resultado.push(reservas[i], await Anuncio.findById(reservas[i].id_anuncio).exec())
+        }
+        res.status(200).json({result: resultado, message: null, success: true});
     } catch (err) {
         res.status(500).json({result: err, message: 'Erro ao pesquisar reservas. Por favor tente novamente.', success: false});
     }
