@@ -11,7 +11,7 @@ app.use(express.static('public'));
 require('dotenv').config();
 
 app.get("/", async (req, res) => {
-  res.status(200).send(`<h1>API Jogueiros</h1><h2>Versão: 01.12.2022</h2>`);
+  res.status(200).send(`<h1>API Jogueiros</h1><h2>Versão: 01/12/2022</h2>`);
 })
 
 app.use("/users", require("./src/routes/usuarios"));
