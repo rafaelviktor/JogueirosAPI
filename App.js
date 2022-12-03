@@ -23,5 +23,5 @@ app.use("/upload", require("./src/routes/upload"));
 mongoose.connect(process.env.MongoDB_URL, () => console.log("Conectado ao banco de dados MongoDB."));
 
 app.listen(process.env.PORT || 3000, async () => {
-    console.log("API Jogueiros iniciada: Servidor operando na porta 3000.");
+    console.log(`API Jogueiros iniciada: Servidor operando na porta ${process.env.PORT || 3000}.`);
   });
